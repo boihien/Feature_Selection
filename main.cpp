@@ -5,7 +5,8 @@
 using namespace std;
 //test files Huang	Boi-Hien	small:40	large:33
 //class. features
-
+//CS170_largetestdata__33.txt
+//CS170_SMALLtestdata__40.txt
 
 vector<int> data = {0,10,1, 1, 1, 1, 1, 1, 0};
 
@@ -14,10 +15,70 @@ void backwardSearch(vector<int> data);
 void leaveOneOutCross();
 void readFile();
 
+//first colum is class label
+//11 columms
+//rest is feature
 //https://www.cplusplus.com/doc/tutorial/files/
-void readFile(string fileName){
+void readFile(string fileName, vector<int>& classLabel, vector<vector<double>>& features){
     ifstream inFile;
     inFile.open(fileName);
+    double data;
+    int line = 0;
+    if(fileName == "CS170_SMALLtestdata__40.txt"){
+        if(!inFile.is_open()){
+            cout << "Could not open file" << endl;
+            return;
+        }
+        else{
+            inFile >> data;
+            classLabel.push_back((int) data);
+            features.push_back(vector<double>());
+            int count = 2; //first one is feature and already pushed one
+            while(inFile >> data){
+                if(count <= 11){//first line of numbers
+                    features[line].push_back(data);
+                    count++;
+                }
+                else{//next line of numbers
+                    count = 2;
+                    line++;
+                    classLabel.push_back((int)data);
+                    features.push_back(vector<double>());
+                }
+            }
+        }
+        cout << "Reached Here" << endl;
+        inFile.close();
+    }
+    else if(fileName == "CS170_largetestdata__33.txt"){
+        if(!inFile.is_open()){
+            cout << "Could not open file" << endl;
+            return;
+        }
+        else{
+            inFile >> data;
+            classLabel.push_back((int) data);
+            features.push_back(vector<double>());
+            int count = 2; //first one is feature and already pushed one
+            while(inFile >> data){
+                if(count <= 101){//first line of numbers
+                    features[line].push_back(data);
+                    count++;
+                }
+                else{//next line of numbers
+                    count = 2;
+                    line++;
+                    classLabel.push_back((int)data);
+                    features.push_back(vector<double>());
+                }
+            }
+            cout << "Reached Here" << endl;
+        }
+        inFile.close();
+    }
+    else{
+        cout << "Error: wrong file name" << endl;
+    }
 }
 
 //take slice of model 
@@ -78,27 +139,37 @@ void backwardSearch(vector<int> data){
 }
 
 void forwardSearch(vector<int> data){
-    vector<int> currentSetFeatures = {};
-    for(int i = 0; i < data.size(); i++){
+    vector<int> currentSetFeatures;
+    for(int i = 1; i < data.size()-1; i++){
         cout << "On the " << i << "th level of the search tree" << endl;
         int featureToAddLevel = 0;
-        int bestAccuracy = 0;
-        for(int k = 0; i < data.size(); k++){
-            /*if(isEmpty){
-                cout << "Considering adding the " << endl;
-                int currentAccuracy = leave_one_out
-
+        double bestAccuracy = 0;
+        double currentAccuracy = 0;
+        /*for(int k = 1; i < data[0].size()-1; k++){
+            if( find(currentSetFeatures.begin(), currentSetFeatures.end(), k) == currentSetFeatures.end()){ //if isempty(intersect(current_set_of_features,k)) %only consider adding, if not already added
+                vector<vector<double>> emptyFeatures = data;
+                vector<int> temp = currentSetFeatures;
+                temp.push_back(k);
+                
+                cout << "--Considering adding the " << k << " feature" << endl;
                 if(currentAccuracy > bestAccuracy){
                     bestAccuracy = currentAccuracy;
                     featureToAddLevel = k;
                 }
-              }
-            */
+            }
         }
-        cout << "On level " << "i added feature " << "to current set" << endl;
+        cout << "On level " << "i added feature " << "to current set" << endl;*/
     }
 }
 int main(){
-    forwardSearch(data);
+    vector<vector<double>> features;
+    vector<int> classLabel;
+    string fileName;
+    cout << "Enter file name: " << endl;
+    cin >> fileName;
+    cout << "Select Algorithm" << endl;
+    cout << "1. Forward" << endl;
+    cout << "2. Backward" << endl;
+    readFile(fileName, classLabel, features);
     return 0;
 }
