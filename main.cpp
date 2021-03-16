@@ -2,18 +2,17 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 using namespace std;
 //test files Huang	Boi-Hien	small:40	large:33
 //class. features
 //CS170_largetestdata__33.txt
 //CS170_SMALLtestdata__40.txt
-
-vector<int> data = {0,10,1, 1, 1, 1, 1, 1, 0};
-
 void forwardSearch(vector<int> data);
 void backwardSearch(vector<int> data);
 void leaveOneOutCross();
 void readFile();
+double crossValidation(vector<int>& classLabel, vector<vector<double>>& features);
 
 //first colum is class label
 //11 columms
@@ -24,7 +23,7 @@ void readFile(string fileName, vector<int>& classLabel, vector<vector<double>>& 
     inFile.open(fileName);
     double data;
     int line = 0;
-    if(fileName == "CS170_SMALLtestdata__40.txt"){
+    if(fileName == "CS170_SMALLtestdata__40.txt" || fileName == "test1row.txt"){
         if(!inFile.is_open()){
             cout << "Could not open file" << endl;
             return;
@@ -86,7 +85,7 @@ void readFile(string fileName, vector<int>& classLabel, vector<vector<double>>& 
 //would first 2 be correctly classified
     //if class is label is true with model it is correct
     //else not
-void leaveOneOutCross(){
+double crossValidation(vector<int>& classLabel, vector<vector<double>>& features){
 /*data in
   number_correctly_classified = 0;
     for (int i = 1; i < data.size(); i++){
@@ -138,38 +137,73 @@ void backwardSearch(vector<int> data){
     }
 }
 
-void forwardSearch(vector<int> data){
-    vector<int> currentSetFeatures;
-    for(int i = 1; i < data.size()-1; i++){
+vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLabel, vector<double>& accuracyVec){
+    double currentBest;
+    double globalBest;
+    vector<int> currentSetFeatures;//initialize empty set 
+    vector<int> globalBestVec;
+    for(int i = 0; i < features[0].size(); i++){
         cout << "On the " << i << "th level of the search tree" << endl;
         int featureToAddLevel = 0;
-        double bestAccuracy = 0;
-        double currentAccuracy = 0;
-        /*for(int k = 1; i < data[0].size()-1; k++){
-            if( find(currentSetFeatures.begin(), currentSetFeatures.end(), k) == currentSetFeatures.end()){ //if isempty(intersect(current_set_of_features,k)) %only consider adding, if not already added
-                vector<vector<double>> emptyFeatures = data;
+        double bestSoFar = 0;
+        double accuracy = 0;
+        for(int k = 0; i < features[i].size(); k++){
+            if(find(currentSetFeatures.begin(), currentSetFeatures.end(), k) == currentSetFeatures.end()){ //if isempty(intersect(current_set_of_features,k)) %only consider adding, if not already added
+                vector<vector<double>> emptyFeatures = features;
                 vector<int> temp = currentSetFeatures;
                 temp.push_back(k);
-                
-                cout << "--Considering adding the " << k << " feature" << endl;
-                if(currentAccuracy > bestAccuracy){
-                    bestAccuracy = currentAccuracy;
-                    featureToAddLevel = k;
+                cout << "--Considering adding the " << temp[0] + 1 << " feature" << endl;
+                for(int i = 1; i < temp.size(); i++){
+                    cout << "--Considering adding the " << temp[i] + 1 << " feature" << endl; //add one since need to index from 1
                 }
+                accuracy = crossValidation(classLabel, emptyFeatures);//use crossvalidation function stub
+                accuracyVec.push_back(accuracy);//keep track of accuracy
+            }
+            if(accuracy > bestSoFar){
+                bestSoFar = accuracy;
+                featureToAddLevel = k;
             }
         }
-        cout << "On level " << "i added feature " << "to current set" << endl;*/
+        if(currentBest < bestSoFar){//checking for best overall accuracy 
+            currentBest = bestSoFar;
+            if(globalBest < currentBest){
+                globalBest = currentBest;
+                globalBestVec = currentSetFeatures;
+                globalBestVec.push_back(featureToAddLevel);//keep track of best overall feature to add at this level
+            }
+        }
+        if(find(currentSetFeatures.begin(), currentSetFeatures.end(), featureToAddLevel) == currentSetFeatures.end()){//checking if feauture to add at this level was already added
+            currentSetFeatures.push_back(featureToAddLevel);//add feature at this level to set of features to add
+            if(i < features[0].size() - 1){//check if current level is less than features at zero size
+                //currentSetoffeatures(i) = feature to add at this level
+                cout << "On level " << i << " i added feature " << currentSetFeatures[0] + 1 << "to current set" << endl;
+            }
+        }
     }
+    cout << "Reached End. Best feature subset is [" << endl;
+    cout << globalBestVec[0] + 1 << endl;
+    for(int j = 1; j < globalBestVec.size(); j++){
+        cout << ", " << globalBestVec[j] + 1; 
+    }
+    cout << "], with an accuracy of " << endl;
+
+    return globalBestVec;
 }
 int main(){
     vector<vector<double>> features;
     vector<int> classLabel;
+    vector<double> temp;
     string fileName;
+    int algo;
     cout << "Enter file name: " << endl;
     cin >> fileName;
     cout << "Select Algorithm" << endl;
     cout << "1. Forward" << endl;
     cout << "2. Backward" << endl;
+    cin >> algo;
     readFile(fileName, classLabel, features);
+    if(algo == 1){
+        forwardSearch(features, classLabel, temp);
+    }
     return 0;
 }
