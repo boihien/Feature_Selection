@@ -13,6 +13,7 @@ void backwardSearch(vector<int> data);
 void leaveOneOutCross();
 void readFile();
 double crossValidation(vector<int>& classLabel, vector<vector<double>>& features);
+void featureIsolate(vector<int>& temp, vector<vector<double>>& emptyFeatures);
 
 //first colum is class label
 //11 columms
@@ -138,16 +139,16 @@ void backwardSearch(vector<int> data){
 }
 
 vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLabel, vector<double>& accuracyVec){
-    double currentBest;
-    double globalBest;
+    double currentBest = 0;
+    double globalBest = 0;
     vector<int> currentSetFeatures;//initialize empty set 
     vector<int> globalBestVec;
     for(int i = 0; i < features[0].size(); i++){
-        cout << "On the " << i << "th level of the search tree" << endl;
+        cout << "On the " << i + 1 << "th level of the search tree" << endl;
         int featureToAddLevel = 0;
         double bestSoFar = 0;
         double accuracy = 0;
-        for(int k = 0; i < features[i].size(); k++){
+        for(int k = 0; k < features[i].size(); k++){
             if(find(currentSetFeatures.begin(), currentSetFeatures.end(), k) == currentSetFeatures.end()){ //if isempty(intersect(current_set_of_features,k)) %only consider adding, if not already added
                 vector<vector<double>> emptyFeatures = features;
                 vector<int> temp = currentSetFeatures;
@@ -156,6 +157,7 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
                 for(int i = 1; i < temp.size(); i++){
                     cout << "--Considering adding the " << temp[i] + 1 << " feature" << endl; //add one since need to index from 1
                 }
+                featureIsolate(temp, emptyFeatures);
                 accuracy = crossValidation(classLabel, emptyFeatures);//use crossvalidation function stub
                 accuracyVec.push_back(accuracy);//keep track of accuracy
             }
@@ -175,20 +177,36 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
         if(find(currentSetFeatures.begin(), currentSetFeatures.end(), featureToAddLevel) == currentSetFeatures.end()){//checking if feauture to add at this level was already added
             currentSetFeatures.push_back(featureToAddLevel);//add feature at this level to set of features to add
             if(i < features[0].size() - 1){//check if current level is less than features at zero size
+                cout << currentSetFeatures[0] + 1 << endl;
                 //currentSetoffeatures(i) = feature to add at this level
-                cout << "On level " << i << " i added feature " << currentSetFeatures[0] + 1 << "to current set" << endl;
+                for(int l = 0; l < currentSetFeatures.size(); l++){
+                    cout << "On level " << i + 1 << " i added feature " << currentSetFeatures[l] + 1 << " to current set" << endl;
+                }
             }
         }
     }
     cout << "Reached End. Best feature subset is [" << endl;
-    cout << globalBestVec[0] + 1 << endl;
+    cout << "Reached here" << endl;
+    cout << globalBestVec[0] + 1;
     for(int j = 1; j < globalBestVec.size(); j++){
         cout << ", " << globalBestVec[j] + 1; 
+        cout << "Reached here" << endl;
     }
     cout << "], with an accuracy of " << endl;
 
     return globalBestVec;
 }
+
+void featureIsolate(vector<int>& temp, vector<vector<double>>& emptyFeatures){
+    for(int i = 0; i < emptyFeatures.size(); i++){
+        for(int j = 0; j < emptyFeatures[0].size(); j++){
+            if(find(temp.begin(), temp.end(), j) == temp.end()){//if empty
+                emptyFeatures[i][j] = 0.0;
+            }
+        }
+    }
+}
+
 int main(){
     vector<vector<double>> features;
     vector<int> classLabel;
@@ -203,7 +221,7 @@ int main(){
     cin >> algo;
     readFile(fileName, classLabel, features);
     if(algo == 1){
-        forwardSearch(features, classLabel, temp);
+        vector<int>bestFeatures = forwardSearch(features, classLabel, temp);
     }
     return 0;
 }
