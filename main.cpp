@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <math.h>
 using namespace std;
 //test files Huang	Boi-Hien	small:40	large:33
 //class. features
@@ -24,6 +25,7 @@ void readFile(string fileName, vector<int>& classLabel, vector<vector<double>>& 
     inFile.open(fileName);
     double data;
     int line = 0;
+    int count = 2; //first one is feature and already pushed one
     if(fileName == "CS170_SMALLtestdata__40.txt" || fileName == "test1row.txt"){
         if(!inFile.is_open()){
             cout << "Could not open file" << endl;
@@ -33,7 +35,6 @@ void readFile(string fileName, vector<int>& classLabel, vector<vector<double>>& 
             inFile >> data;
             classLabel.push_back((int) data);
             features.push_back(vector<double>());
-            int count = 2; //first one is feature and already pushed one
             while(inFile >> data){
                 if(count <= 11){//first line of numbers
                     features[line].push_back(data);
@@ -87,9 +88,40 @@ void readFile(string fileName, vector<int>& classLabel, vector<vector<double>>& 
     //if class is label is true with model it is correct
     //else not
 double crossValidation(vector<int>& classLabel, vector<vector<double>>& features){
-/*data in
-  number_correctly_classified = 0;
-    for (int i = 1; i < data.size(); i++){
+  //number_correctly_classified = 0;
+  double numberCorrect = 0;
+  int nearest = 0;
+  int skip = 0; //incorrect neighbor
+  double dist = 0.0;
+  while(skip < 200){
+      nearest = 0;
+      double currentMin = numeric_limits<double>::infinity();//positive infinity
+      for(int i = 0; i < features.size(); i++){
+          dist = 0.0;
+          if(i != skip){//skip incorrect neighbor
+            for(int k = 0; k < features[0].size(); k++){
+                dist += (features[skip][k] - features[i][k]) * (features[skip][k] - features[i][k]);
+            }
+
+            dist = sqrt(dist);
+            if(dist < currentMin){
+                currentMin = dist;
+                nearest = i;
+            }
+          }
+      }
+      /*if(label_object_to_classify == nearest_neighbor_label){
+            number_correctly_classified = number_correctly_clasified + 1;
+        }*/
+      if(classLabel[skip] == classLabel[nearest]){
+          numberCorrect++;
+      }
+      skip++;
+  }
+  return numberCorrect/200;
+
+
+    /*for (int i = 1; i < data.size(); i++){
         object_to_classify = data[i];
         label_object_to_classify = data[i];
 
@@ -112,8 +144,7 @@ double crossValidation(vector<int>& classLabel, vector<vector<double>>& features
         cout << "Object is class" << endl;
         cout << "Its nearest neighbor is " << endl;
     }
-    accuracy = number_correctly_classified / size(data, i);
-*/
+    accuracy = number_correctly_classified / size(data, i);*/
 }
 
 void backwardSearch(vector<int> data){
@@ -139,15 +170,15 @@ void backwardSearch(vector<int> data){
 }
 
 vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLabel, vector<double>& accuracyVec){
-    double currentBest = 0;
-    double globalBest = 0;
+    double currentBest = 0.0;
+    double globalBest = 0.0;
     vector<int> currentSetFeatures;//initialize empty set 
     vector<int> globalBestVec;
     for(int i = 0; i < features[0].size(); i++){
         cout << "On the " << i + 1 << "th level of the search tree" << endl;
-        int featureToAddLevel = 0;
-        double bestSoFar = 0;
-        double accuracy = 0;
+        int featureToAddLevel;
+        double bestSoFar = 0.0;
+        double accuracy = 0.0;
         for(int k = 0; k < features[i].size(); k++){
             if(find(currentSetFeatures.begin(), currentSetFeatures.end(), k) == currentSetFeatures.end()){ //if isempty(intersect(current_set_of_features,k)) %only consider adding, if not already added
                 vector<vector<double>> emptyFeatures = features;
@@ -177,19 +208,16 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
         if(find(currentSetFeatures.begin(), currentSetFeatures.end(), featureToAddLevel) == currentSetFeatures.end()){//checking if feauture to add at this level was already added
             currentSetFeatures.push_back(featureToAddLevel);//add feature at this level to set of features to add
             if(i < features[0].size() - 1){//check if current level is less than features at zero size
-                cout << currentSetFeatures[0] + 1 << endl;
                 //currentSetoffeatures(i) = feature to add at this level
-                for(int l = 0; l < currentSetFeatures.size(); l++){
-                    cout << "On level " << i + 1 << " i added feature " << currentSetFeatures[l] + 1 << " to current set" << endl;
-                }
+                cout << "On level " << i + 1 << " i added feature " << currentSetFeatures.back() << " to current set" << endl;
+                
             }
         }
     }
     cout << "Reached End. Best feature subset is [" << endl;
-    cout << "Reached here" << endl;
     cout << globalBestVec[0] + 1;
-    for(int j = 1; j < globalBestVec.size(); j++){
-        cout << ", " << globalBestVec[j] + 1; 
+    for(int a = 1; a < globalBestVec.size(); a++){
+        cout << ", " << globalBestVec[a] + 1; 
         cout << "Reached here" << endl;
     }
     cout << "], with an accuracy of " << endl;
@@ -210,7 +238,7 @@ void featureIsolate(vector<int>& temp, vector<vector<double>>& emptyFeatures){
 int main(){
     vector<vector<double>> features;
     vector<int> classLabel;
-    vector<double> temp;
+    vector<double> accuracy;
     string fileName;
     int algo;
     cout << "Enter file name: " << endl;
@@ -221,7 +249,7 @@ int main(){
     cin >> algo;
     readFile(fileName, classLabel, features);
     if(algo == 1){
-        vector<int>bestFeatures = forwardSearch(features, classLabel, temp);
+        vector<int>bestFeatures = forwardSearch(features, classLabel, accuracy);
     }
     return 0;
 }
