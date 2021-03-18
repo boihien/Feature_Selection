@@ -9,8 +9,8 @@ using namespace std;
 //class. features
 //CS170_largetestdata__33.txt
 //CS170_SMALLtestdata__40.txt
-void forwardSearch(vector<int> data);
-void backwardSearch(vector<int> data);
+vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLabel, vector<double>& accuracyVec);
+vector<int> backwardSearch(vector<vector<double>>& features, vector<int>& classLabel, vector<double>& accuracyVec);
 void leaveOneOutCross();
 void readFile();
 double crossValidation(vector<int>& classLabel, vector<vector<double>>& features);
@@ -147,29 +147,7 @@ double crossValidation(vector<int>& classLabel, vector<vector<double>>& features
     accuracy = number_correctly_classified / size(data, i);*/
 }
 
-void backwardSearch(vector<int> data){
-    vector<int> currentSetFeatures = {};
-    for(int i = 0; i < data.size(); i++){
-        cout << "On the " << i << "th level of the search tree" << endl;
-        int featureToAddLevel = 0;
-        int bestAccuracy = 0;
-        for(int k = 0; i < data.size(); k++){
-            /*if(find(currentSetFeatures.begin(), currentSetFeatures.end(), k) == currentSetFeature.end()){ //if isempty(intersect(current_set_of_features,k)) %only consider adding, if not already added
-                cout << "Considering adding the " << endl;
-                int currentAccuracy = leave_one_out
-
-                if(currentAccuracy > bestAccuracy){
-                    bestAccuracy = currentAccuracy;
-                    featureToAddLevel = k;
-                }
-              }
-            */
-        }
-        cout << "On level " << "i added feature " << "to current set" << endl;
-    }
-}
-
-vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLabel, vector<double>& accuracyVec){
+vector<int> backwardSearch(vector<vector<double>>& features, vector<int>& classLabel, vector<double>& accuracyVec){
     double currentBest = 0.0;
     double globalBest = 0.0;
     vector<int> currentSetFeatures;//initialize empty set 
@@ -188,7 +166,7 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
                 for(int i = 1; i < temp.size(); i++){
                     cout << "--Considering adding the " << temp[i] + 1 << " feature" << endl; //add one since need to index from 1
                 }
-                featureIsolate(temp, emptyFeatures);
+                //featureIsolate(temp, emptyFeatures);
                 accuracy = crossValidation(classLabel, emptyFeatures);//use crossvalidation function stub
                 accuracyVec.push_back(accuracy);//keep track of accuracy
             }
@@ -225,7 +203,63 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
     return globalBestVec;
 }
 
-void featureIsolate(vector<int>& temp, vector<vector<double>>& emptyFeatures){
+vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLabel, vector<double>& accuracyVec){
+    double currentBest = 0.0;
+    double globalBest = 0.0;
+    vector<int> currentSetFeatures;//initialize empty set 
+    vector<int> globalBestVec;
+    for(int i = 0; i < features[0].size(); i++){
+        cout << "On the " << i + 1 << "th level of the search tree" << endl;
+        int featureToAddLevel;
+        double bestSoFar = 0.0;
+        double accuracy = 0.0;
+        for(int k = 0; k < features[i].size(); k++){
+            if(find(currentSetFeatures.begin(), currentSetFeatures.end(), k) == currentSetFeatures.end()){ //if isempty(intersect(current_set_of_features,k)) %only consider adding, if not already added
+                vector<vector<double>> emptyFeatures = features;
+                vector<int> temp = currentSetFeatures;
+                temp.push_back(k);
+                cout << "--Considering adding the " << temp[0] + 1 << " feature" << endl;
+                for(int i = 1; i < temp.size(); i++){
+                    cout << "--Considering adding the " << temp[i] + 1 << " feature" << endl; //add one since need to index from 1
+                }
+                //featureIsolate(temp, emptyFeatures);
+                accuracy = crossValidation(classLabel, emptyFeatures);//use crossvalidation function stub
+                accuracyVec.push_back(accuracy);//keep track of accuracy
+            }
+            if(accuracy > bestSoFar){
+                bestSoFar = accuracy;
+                featureToAddLevel = k;
+            }
+        }
+        if(currentBest < bestSoFar){//checking for best overall accuracy 
+            currentBest = bestSoFar;
+            if(globalBest < currentBest){
+                globalBest = currentBest;
+                globalBestVec = currentSetFeatures;
+                globalBestVec.push_back(featureToAddLevel);//keep track of best overall feature to add at this level
+            }
+        }
+        if(find(currentSetFeatures.begin(), currentSetFeatures.end(), featureToAddLevel) == currentSetFeatures.end()){//checking if feauture to add at this level was already added
+            currentSetFeatures.push_back(featureToAddLevel);//add feature at this level to set of features to add
+            if(i < features[0].size() - 1){//check if current level is less than features at zero size
+                //currentSetoffeatures(i) = feature to add at this level
+                cout << "On level " << i + 1 << " i added feature " << currentSetFeatures.back() << " to current set" << endl;
+                
+            }
+        }
+    }
+    cout << "Reached End. Best feature subset is [" << endl;
+    cout << globalBestVec[0] + 1;
+    for(int a = 1; a < globalBestVec.size(); a++){
+        cout << ", " << globalBestVec[a] + 1; 
+        cout << "Reached here" << endl;
+    }
+    cout << "], with an accuracy of " << endl;
+
+    return globalBestVec;
+}
+
+/*void featureIsolate(vector<int>& temp, vector<vector<double>>& emptyFeatures){
     for(int i = 0; i < emptyFeatures.size(); i++){
         for(int j = 0; j < emptyFeatures[0].size(); j++){
             if(find(temp.begin(), temp.end(), j) == temp.end()){//if empty
@@ -233,7 +267,7 @@ void featureIsolate(vector<int>& temp, vector<vector<double>>& emptyFeatures){
             }
         }
     }
-}
+}*/
 
 int main(){
     vector<vector<double>> features;
