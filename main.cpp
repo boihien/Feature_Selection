@@ -26,7 +26,7 @@ void readFile(string fileName, vector<int>& classLabel, vector<vector<double>>& 
     double data;
     int line = 0;
     int count = 2; //first one is feature and already pushed one
-    if(fileName == "CS170_SMALLtestdata__40.txt" || fileName == "test1row.txt"){
+    if(fileName == "CS170_SMALLtestdata__40.txt" || fileName == "test1row.txt" || "CS170_small_special_testdata__95.txt"){
         if(!inFile.is_open()){
             cout << "Could not open file" << endl;
             return;
@@ -119,8 +119,6 @@ double crossValidation(vector<int>& classLabel, vector<vector<double>>& features
       skip++;
   }
   return numberCorrect/200;
-
-
     /*for (int i = 1; i < data.size(); i++){
         object_to_classify = data[i];
         label_object_to_classify = data[i];
@@ -166,8 +164,9 @@ vector<int> backwardSearch(vector<vector<double>>& features, vector<int>& classL
                 for(int i = 1; i < temp.size(); i++){
                     cout << "--Considering adding the " << temp[i] + 1 << " feature" << endl; //add one since need to index from 1
                 }
-                //featureIsolate(temp, emptyFeatures);
+                featureIsolate(temp, emptyFeatures);
                 accuracy = crossValidation(classLabel, emptyFeatures);//use crossvalidation function stub
+                cout << "with accuracy " << accuracy * 100 << "%:" << endl;
                 accuracyVec.push_back(accuracy);//keep track of accuracy
             }
             if(accuracy > bestSoFar){
@@ -196,9 +195,8 @@ vector<int> backwardSearch(vector<vector<double>>& features, vector<int>& classL
     cout << globalBestVec[0] + 1;
     for(int a = 1; a < globalBestVec.size(); a++){
         cout << ", " << globalBestVec[a] + 1; 
-        cout << "Reached here" << endl;
     }
-    cout << "], with an accuracy of " << endl;
+    cout << "], with an accuracy of " << globalBest* 100 << "%"<< endl;
 
     return globalBestVec;
 }
@@ -222,8 +220,9 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
                 for(int i = 1; i < temp.size(); i++){
                     cout << "--Considering adding the " << temp[i] + 1 << " feature" << endl; //add one since need to index from 1
                 }
-                //featureIsolate(temp, emptyFeatures);
+                featureIsolate(temp, emptyFeatures);
                 accuracy = crossValidation(classLabel, emptyFeatures);//use crossvalidation function stub
+                
                 accuracyVec.push_back(accuracy);//keep track of accuracy
             }
             if(accuracy > bestSoFar){
@@ -244,22 +243,21 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
             if(i < features[0].size() - 1){//check if current level is less than features at zero size
                 //currentSetoffeatures(i) = feature to add at this level
                 cout << "On level " << i + 1 << " i added feature " << currentSetFeatures.back() << " to current set" << endl;
-                
+                cout << "with accuracy " << bestSoFar * 100 << "%" << endl;
             }
         }
     }
-    cout << "Reached End. Best feature subset is [" << endl;
+    cout << "Reached End. Best feature subset is [";
     cout << globalBestVec[0] + 1;
     for(int a = 1; a < globalBestVec.size(); a++){
         cout << ", " << globalBestVec[a] + 1; 
-        cout << "Reached here" << endl;
     }
-    cout << "], with an accuracy of " << endl;
+    cout << "], with an accuracy of " << globalBest * 100 << "%" << endl;
 
     return globalBestVec;
 }
 
-/*void featureIsolate(vector<int>& temp, vector<vector<double>>& emptyFeatures){
+void featureIsolate(vector<int>& temp, vector<vector<double>>& emptyFeatures){
     for(int i = 0; i < emptyFeatures.size(); i++){
         for(int j = 0; j < emptyFeatures[0].size(); j++){
             if(find(temp.begin(), temp.end(), j) == temp.end()){//if empty
@@ -267,7 +265,7 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
             }
         }
     }
-}*/
+}
 
 int main(){
     vector<vector<double>> features;
