@@ -196,12 +196,12 @@ vector<int> backwardSearch(vector<vector<double>>& features, vector<int>& classL
             
         
     }
-    cout << "Reached End. Best feature subset is [";
+    cout << "Reached here. Best feature subset: ";
     cout << globalBestVec[0] + 1;
     for(int a = 1; a < globalBestVec.size(); a++){
         cout << ", " << globalBestVec[a] + 1; 
     }
-    cout << "], with an accuracy of " << globalBest * 100 << "%" << endl;
+    cout << " accuracy: " << globalBest * 100 << "%" << endl;
 
     return globalBestVec;
 }
@@ -233,6 +233,8 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
             if(accuracy > bestSoFar){
                 bestSoFar = accuracy;
                 featureToAddLevel = k;
+                //cout << accuracy << endl;
+                //cout << bestSoFar <<endl;
             }
         }
         if(currentBest < bestSoFar){//checking for best overall accuracy 
@@ -252,12 +254,12 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
             }
         }
     }
-    cout << "Reached End. Best feature subset is [";
+    cout << "Reached Here. Best feature subset: ";
     cout << globalBestVec[0] + 1;
     for(int a = 1; a < globalBestVec.size(); a++){
         cout << ", " << globalBestVec[a] + 1; 
     }
-    cout << "], with an accuracy of " << globalBest * 100 << "%" << endl;
+    cout << " accuracy: " << globalBest* 100 << "%" << endl;
 
     return globalBestVec;
 }
@@ -265,7 +267,7 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
 void removeFeatures(vector<int>& temp, vector<vector<double>>& emptyFeatures){
     for(int i = 0; i < emptyFeatures.size(); i++){
         for(int j = 0; j < emptyFeatures[0].size(); j++){
-            if(find(temp.begin(), temp.end(), j) == temp.end()){//if empty
+            if(find(temp.begin(), temp.end(), j) == temp.end()){//if feature already added
                 emptyFeatures[i][j] = 0.0;
             }
         }
