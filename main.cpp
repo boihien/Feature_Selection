@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <math.h>
+#include <ctime>
 using namespace std;
 //test files Huang	Boi-Hien	small:40	large:33
 //class. features
@@ -221,7 +222,7 @@ vector<int> forwardSearch(vector<vector<double>>& features, vector<int>& classLa
                 vector<vector<double>> emptyFeatures = features;
                 vector<int> temp = currentSetFeatures;
                 temp.push_back(k);
-                cout << "--Considering adding the " << temp[0] + 1 << " feature" << endl;
+                cout << "--Considering adding the " << temp[0] + 1 << " feature" << endl;;
                 for(int i = 1; i < temp.size(); i++){
                     cout << "--Considering adding the " << temp[i] + 1 << " feature" << endl; //add one since need to index from 1
                 }
@@ -288,10 +289,20 @@ int main(){
     cin >> algo;
     readFile(fileName, classLabel, features);
     if(algo == 1){
+        clock_t start;
+        double duration;
+        start = clock();
         vector<int>bestFeatures = forwardSearch(features, classLabel, accuracy);
+        duration = (clock() - start) / (double) CLOCKS_PER_SEC;
+        cout << "Time: " << duration << "seconds" << endl;
     }
     if(algo == 2){
+        clock_t start;
+        double duration;
+        start = clock();
         vector<int>bestFeatures = backwardSearch(features, classLabel, accuracy);
+        duration = (clock() - start) / (double) CLOCKS_PER_SEC;
+        cout << "Time: " << duration << "seconds" << endl;
     }
     return 0;
 }
